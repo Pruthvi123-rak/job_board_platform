@@ -1,0 +1,31 @@
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Job, JobApplication, CandidateProfile
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+
+def job_list(request):
+    jobs = Job.objects.all()
+    return render(request, 'jobs/job_list.html', {'jobs': jobs})
+
+def job_detail(request, job_id):
+    job = get_object_or_404(Job, id=job_id)
+    return render(request, 'jobs/job_detail.html', {'job': job})
+
+@login_required
+def apply_to_job(request, job_id):
+    job = get_object_or_404(Job, id=job_id)
+    if request.method == 'POST':
+        cover_letter = request.POST['cover_letter']
+        JobApplication.objects.create(job=job, candidate=request.user, cover_letter=cover_letter)
+        return redirect('job_list')
+    return render(request, 'jobs/apply.html', {'job': job})
+
+@login_required
+def profile(request):
+    profile, created = CandidateProfile.objects.get_or_create(user=request.user)
+    if request.method == 'POST':
+        profile.bio = request.POST['bio']
+        if 'resume' in request.FILES:
+            profile.resume = request.FILES['resume']
+        profile.save()
+    return render(request, 'jobs/profile.html', {'profile': profile})

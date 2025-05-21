@@ -1,0 +1,8 @@
+<h2>My Profile</h2>
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    Bio:<br>
+    <textarea name="bio">{{ profile.bio }}</textarea><br>
+    Resume: <input type="file" name="resume"><br>
+    <button type="submit">Save</button>
+</form>
